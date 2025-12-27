@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOUSSEF.A | PREMIER GALLERY</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Cairo:wght@400;700&family=Inter:wght@100;300;400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root { --accent: #ff0000; --mouse-color: #888888; --bg: #0a0a0a; --white: #f5f5f5; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+        body { background: var(--bg); color: var(--white); font-family: 'Inter', 'Cairo', sans-serif; overflow-x: hidden; }
+
+        /* Grain Texture */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.04; pointer-events: none; z-index: 5000;
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 200000; display: flex;
+            align-items: center; justify-content: center;
+            color: white; font-family: 'Syncopate', sans-serif;
+            letter-spacing: 12px; font-size: 1.2rem;
+        }
+
+        /* Mouse Control */
+        #mouse-glow {
+            position: fixed; top: 0; left: 0; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none; z-index: 1; transform: translate(-50%, -50%);
+        }
+        #custom-cursor { width: 8px; height: 8px; background: var(--white); border-radius: 50%; position: fixed; top: 0; left: 0; z-index: 100000; pointer-events: none; }
+        #cursor-follower { width: 35px; height: 35px; border: 1px solid var(--mouse-color); border-radius: 50%; position: fixed; top: 0; left: 0; z-index: 99999; pointer-events: none; }
+
+        /* Navigation */
+        nav { position: fixed; top: 0; width: 100%; padding: 40px 8%; display: flex; justify-content: space-between; z-index: 100; mix-blend-difference: difference; }
+        .logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 4px; color: var(--white); text-decoration: none; }
+
+        /* Animations */
+        .reveal-text { opacity: 0; transform: translateY(20px); transition: all 0.8s ease-out; }
+        .reveal-text.active { opacity: 1; transform: translateY(0); }
+
+        /* --- HERO --- */
+        .home-hero {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), 
+            url('https://images.unsplash.com/photo-1572375992501-4b0892d50c69?q=80&w=2073') center/cover no-repeat;
+            background-attachment: fixed;
+        }
+        .hero-content { text-align: center; z-index: 10; padding: 0 20px; }
+        .hero-content h1 { font-family: 'Syncopate', sans-serif; font-size: 6vw; line-height: 1.1; }
+        .hero-content p { font-size: 9px; letter-spacing: 8px; margin-top: 20px; color: var(--accent); font-weight: 700; }
+
+        /* --- GALLERY --- */
+        .section-wrap { padding: 100px 8% 100px 12%; border-bottom: 1px solid rgba(255,255,255,0.03); position: relative; z-index: 2; }
+        .section-header { margin-bottom: 50px; text-align: right; }
+        .section-header span { font-size: 9px; letter-spacing: 4px; color: var(--accent); display: block; margin-bottom: 8px; font-weight: 700; }
+        .section-header h2 { font-family: 'Syncopate', sans-serif; font-size: 2.2vw; border-right: 3px solid var(--accent); padding-right: 15px; }
+        .sub-cap { font-family: 'Cairo', sans-serif; font-size: 11px; margin-top: 10px; color: #666; }
+
+        .gallery-grid { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; }
+        .gallery-item-container { flex: 1 1 300px; max-width: 450px; }
+        .gallery-item { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .gallery-item img { width: 100%; height: auto; filter: grayscale(100%); transition: 0.6s ease; display: block; }
+        .gallery-item:hover img { filter: grayscale(0%); transform: scale(1.03); }
+        .item-info { margin-top: 15px; text-align: right; color: #aaa; font-size: 10px; letter-spacing: 2px; font-family: 'Syncopate', sans-serif; }
+
+        /* --- CONTACT --- */
+        .contact-v3 { padding: 120px 8%; text-align: center; background: #000; position: relative; z-index: 2; }
+        .contact-v3 p { font-family: 'Cairo', sans-serif; font-size: 14px; color: #666; max-width: 500px; margin: 0 auto 40px; }
+        .contact-links { display: flex; justify-content: center; gap: 40px; }
+        .s-link { text-decoration: none; color: #fff; font-family: 'Syncopate', sans-serif; font-size: 10px; letter-spacing: 3px; border-bottom: 1px solid var(--accent); transition: 0.3s; padding-bottom: 5px; }
+        .s-link:hover { color: var(--accent); letter-spacing: 5px; }
+
+        .progress-container { position: fixed; left: 4%; top: 50%; transform: translateY(-50%); height: 180px; width: 1px; background: rgba(255,255,255,0.1); z-index: 10; }
+        .progress-bar { width: 100%; height: 0%; background: var(--accent); }
+
+        #lightbox { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 10000; display: none; align-items: center; justify-content: center; }
+        footer { padding: 60px 0; text-align: center; font-size: 8px; opacity: 0.3; letter-spacing: 4px; }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            * { cursor: auto !important; }
+            #custom-cursor, #cursor-follower, #mouse-glow { display: none !important; }
+            
+            nav { padding: 25px 5%; }
+            .logo { font-size: 0.9rem; }
+
+            .hero-content h1 { font-size: 14vw; }
+            .hero-content p { font-size: 11px; letter-spacing: 4px; }
+
+            .section-header h2 { font-size: 8vw; }
+            .section-wrap { padding: 60px 5% 60px 8%; }
+            
+            .gallery-grid { gap: 25px; }
+            
+            /* تعديل الروابط لتكون بجانب بعضها في الموبايل */
+            .contact-links { 
+                gap: 30px; 
+                flex-direction: row; /* يضمن بقاءهم بجانب بعض */
+                justify-content: center;
+                flex-wrap: wrap; /* لو الشاشة صغيرة جداً هينزلوا تحت بعض تلقائي */
+            }
+            .s-link { font-size: 9px; letter-spacing: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">YOUSSEF.A</div>
+    <div id="mouse-glow"></div>
+    <div id="custom-cursor"></div>
+    <div id="cursor-follower"></div>
+
+    <div id="lightbox"><img src="" alt="" style="max-width: 90%; max-height: 85%; border: 1px solid var(--accent);"></div>
+    <div class="progress-container"><div class="progress-bar"></div></div>
+
+    <nav>
+        <div style="font-size: 8px; opacity: 0.5; letter-spacing: 2px;">PREMIUM STUDIO</div>
+        <a href="#" class="logo">YOUSSEF.A</a>
+    </nav>
+
+    <header class="home-hero">
+        <div class="hero-content">
+            <h1 class="reveal-text">CUSTOM<br>EDITIONS.</h1>
+            <p class="reveal-text">ELITE PRINTS GALLERY</p>
+        </div>
+    </header>
+
+    <section class="section-wrap">
+        <div class="section-header">
+            <span class="reveal-text">COLLECTION 01</span>
+            <h2 class="reveal-text">CUSTOM MUGS</h2>
+            <p class="sub-cap reveal-text">طباعة خاصة حسب الطلب وجودة تدوم طويلاً</p>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/pdJ5Djnr/chrome_Jk_Qa_AOh_P8N.png" class="zoomable"></div>
+                <div class="item-info">STUDIO MUG 01</div>
+            </div>
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/s24GpWZj/chrome_g_H02owv5Iy.png" class="zoomable"></div>
+                <div class="item-info">STUDIO MUG 02</div>
+            </div>
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/3wF0gGDK/chrome_Ib9wv_G5l_Wo.png" class="zoomable"></div>
+                <div class="item-info">STUDIO MUG 03</div>
+            </div>
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/s24GpWZM/chrome_nr_Hos6a_Un_R.png" class="zoomable"></div>
+                <div class="item-info">STUDIO MUG 04</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-wrap" style="background: #080808;">
+        <div class="section-header">
+            <span class="reveal-text">COLLECTION 02</span>
+            <h2 class="reveal-text">NOTEBOOKS</h2>
+            <p class="sub-cap reveal-text">دفاتر بتصاميمك الشخصية لكل لحظة</p>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/SNpPN2pM/chrome_7yc_FPYCf3C.png" class="zoomable"></div>
+                <div class="item-info">DESIGN NOTE 01</div>
+            </div>
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/8PB0Fp16/chrome_8lj_Tas_MYIk.png" class="zoomable"></div>
+                <div class="item-info">DESIGN NOTE 02</div>
+            </div>
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/J4WF4DWx/chrome_D43JJlb_TXC.png" class="zoomable"></div>
+                <div class="item-info">DESIGN NOTE 03</div>
+            </div>
+            <div class="gallery-item-container reveal-text">
+                <div class="gallery-item"><img src="https://i.postimg.cc/28ft8bfT/chrome_y2p4FDXP16.png" class="zoomable"></div>
+                <div class="item-info">DESIGN NOTE 04</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-v3">
+        <h2 class="reveal-text">GET IN TOUCH</h2>
+        <p class="reveal-text">نحن نحول تصاميمك إلى واقع ملموس بجودة استثنائية. تواصل معنا للطلب.</p>
+        <div class="contact-links reveal-text">
+            <a href="https://www.instagram.com/awadolaaa?utm_source=qr&igsh=MTJia3J2dDk4MmVibw==" target="_blank" class="s-link">INSTAGRAM</a>
+            <a href="https://wa.me/201288387475" target="_blank" class="s-link">WHATSAPP</a>
+        </div>
+    </section>
+
+    <footer>© 2025 YOUSSEF PRINTS</footer>
+
+    <script>
+        window.addEventListener('load', () => {
+            gsap.to("#loader", { opacity: 0, duration: 0.8, delay: 0.5, onComplete: () => {
+                document.getElementById('loader').style.display = 'none';
+            }});
+        });
+
+        const lenis = new Lenis();
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        if (window.innerWidth > 768) {
+            const cursor = document.getElementById('custom-cursor');
+            const follower = document.getElementById('cursor-follower');
+            const glow = document.getElementById('mouse-glow');
+
+            window.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, { x: e.clientX - 4, y: e.clientY - 4, duration: 0 });
+                gsap.to(follower, { x: e.clientX - 17, y: e.clientY - 17, duration: 0.3 });
+                gsap.to(glow, { x: e.clientX, y: e.clientY, duration: 1 });
+            });
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal-text').forEach(el => observer.observe(el));
+
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = lightbox.querySelector('img');
+        document.querySelectorAll('.zoomable').forEach(img => {
+            img.addEventListener('click', () => { lbImg.src = img.src; lightbox.style.display = 'flex'; });
+        });
+        lightbox.addEventListener('click', () => lightbox.style.display = 'none');
+        
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.to(".progress-bar", { height: "100%", scrollTrigger: { scrub: 1 } });
+    </script>
+</body>
+</html>
